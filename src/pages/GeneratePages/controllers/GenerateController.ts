@@ -25,43 +25,83 @@ class GenerateController {
     }
 
     public generateAiText = async(req: Request, res: Response) : Promise<Response> => {
-        const OPENAI_KEY : string = process.env.OPENAI_KEY || '';
-        const openai = new OpenAI({apiKey : OPENAI_KEY});
-        
+        const OPENAI_KEY: string = process.env.OPENAI_KEY || '';
+        const openai = new OpenAI({ apiKey: OPENAI_KEY });
+    
         try {
-            const {prompt} : InterfacePrompt = req.body;
+            const { prompt }: InterfacePrompt = req.body;
+    
+            if (!prompt) {
+                return ResponseCode.error(res, {
+                    code: 400,
+                    status: false,
+                    message: 'Prompt is required',
+                    result: null
+                });
+            }
+    
+            const respText: any = await GenerateRepository.generateText(res, prompt);
+    
+            if (respText === false) {
+                return ResponseCode.error(res, {
+                    code: 500,
+                    status: false,
+                    message: 'Failed to generate text',
+                    result: null
+                });
+            }
+    
+            // Log the raw response for debugging
+            // console.log('Raw Response:', respText.data);
+    
+            // let jsonResponse;
+            // try {
+            //     // Remove code block markers and unnecessary characters
+            //     const cleanedData = respText.data.replace(/```json\n|```/g, '').trim();
 
-            if(!prompt) return ResponseCode.error(res, {
-                code : 400,
-                status : false,
-                message : 'Prompt is required',
-                result : null
-            })
 
-            const respText : any = await GenerateRepository.generateText(res, prompt);
+                
+            //     // Attempt to parse the cleaned response text as JSON
+            //     jsonResponse = JSON.parse(cleanedData);
+
+            //     // Optionally store the response in your database
+            //     const respStore = await prisma.responseAi.create({
+            //         data: {
+            //             prompt: prompt,
+            //             response: respText.data,
+            //         }
+            //     });
+            // } catch (parseError: unknown) {
+            //     const errorMessage = parseError instanceof Error ? parseError.message : 'Unknown error occurred';
+    
+            //     return ResponseCode.error(res, {
+            //         code: 500,
+            //         status: false,
+            //         message: 'Error parsing JSON response: ' + errorMessage,
+            //         result: null
+            //     });
+            // }
 
             const respStore = await prisma.responseAi.create({
                 data: {
                     prompt: prompt,
                     response: respText.data,
+                    jsonResponse: undefined
                 }
-            })
-
-            if(respText === false) return ResponseCode.error(res, respText.message);
-
-            return ResponseCode.successGet(res, respText.data);
-
-        } catch (e:any) {
-
-            return ResponseCode.error( res, {
-                code : 500,
-                status : false,
-                message : e.message,
-                result : null
-            })
-            
+            });
+    
+    
+            return ResponseCode.successGet(res, respStore);
+        } catch (e: unknown) {
+            const errorMessage = e instanceof Error ? e.message : 'Unknown error occurred';
+    
+            return ResponseCode.error(res, {
+                code: 500,
+                status: false,
+                message: errorMessage,
+                result: null
+            });
         }
-
     }
 
     public generateAiImage = async(req: Request, res: Response) : Promise<Response> => {

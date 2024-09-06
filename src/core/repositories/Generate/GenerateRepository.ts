@@ -18,7 +18,6 @@ class GenerateRepository {
                         "content": data
                     }
                 ],
-                max_tokens: 600
             })
     
     

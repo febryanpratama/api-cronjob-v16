@@ -57,6 +57,7 @@ model ResponseAi {
   id        Int      @id @default(autoincrement())
   prompt    String   @db.Text // Allows longer text values
   response  String   @db.LongText
+  jsonResponse Json? 
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now())
 
