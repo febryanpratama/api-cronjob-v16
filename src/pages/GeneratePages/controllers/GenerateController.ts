@@ -34,6 +34,13 @@ class GenerateController {
 
             const respText : any = await GenerateRepository.generateText(res, prompt);
 
+            const respStore = await prisma.responseAi.create({
+                data: {
+                    prompt: prompt,
+                    response: respText.data,
+                }
+            })
+
             if(respText === false) return ResponseCode.error(res, respText.message);
 
             return ResponseCode.successGet(res, respText.data);
@@ -231,6 +238,17 @@ class GenerateController {
             })
         }
     }
+
+    // public generateAiTextRandom = async(req: Request, res: Response) : Promise<Response> => {
+    //     const OPENAI_KEY : string = process.env.OPENAI_KEY || '';
+    //     const openai = new OpenAI({apiKey : OPENAI_KEY});
+
+    //     const {prompt} : InterfacePrompt = req.body;
+
+    //     const respText : any = await GenerateRepository.generateText(res, prompt);
+
+    //         if(respText === false) return ResponseCode.error(res, respText.message);
+    // }
 }
 
 export default new GenerateController();

@@ -3,6 +3,7 @@
 
 generator client {
   provider = "prisma-client-js"
+  migrations_path = "./prisma/migrations"
 }
 
 datasource db {
@@ -50,4 +51,14 @@ model Artikel {
   application Application @relation(fields: [applicationId], references: [id])
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now())
+}
+
+model ResponseAi {
+  id        Int      @id @default(autoincrement())
+  prompt    String   @db.Text // Allows longer text values
+  response  String   @db.LongText
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
+
+  @@map("response_ai")
 }
