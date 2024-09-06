@@ -18,6 +18,12 @@ interface InterfacePrompt {
 
 class GenerateController {
 
+    public index = async(req: Request, res: Response) : Promise<Response> => {
+        const resp = await prisma.responseAi.findMany();
+
+        return ResponseCode.successGet(res, resp);
+    }
+
     public generateAiText = async(req: Request, res: Response) : Promise<Response> => {
         const OPENAI_KEY : string = process.env.OPENAI_KEY || '';
         const openai = new OpenAI({apiKey : OPENAI_KEY});
