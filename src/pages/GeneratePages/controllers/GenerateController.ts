@@ -103,6 +103,53 @@ class GenerateController {
             });
         }
     }
+    public generateAiTextAsisstant = async(req: Request, res: Response) : Promise<Response> => {
+        const OPENAI_KEY: string = process.env.OPENAI_KEY || '';
+        const openai = new OpenAI({ apiKey: OPENAI_KEY });
+    
+        try {
+            const { prompt }: InterfacePrompt = req.body;
+    
+            if (!prompt) {
+                return ResponseCode.error(res, {
+                    code: 400,
+                    status: false,
+                    message: 'Prompt is required',
+                    result: null
+                });
+            }
+    
+            const respText: any = await GenerateRepository.generateTextAsisstant(res, prompt);
+    
+            if (respText === false) {
+                return ResponseCode.error(res, {
+                    code: 500,
+                    status: false,
+                    message: 'Failed to generate text',
+                    result: null
+                });
+            }
+
+            const respResult = {
+                status: true,
+                message: "Success",
+                response: respText.data
+            }
+            
+    
+    
+            return ResponseCode.successGet(res, respResult);
+        } catch (e: unknown) {
+            const errorMessage = e instanceof Error ? e.message : 'Unknown error occurred';
+    
+            return ResponseCode.error(res, {
+                code: 500,
+                status: false,
+                message: errorMessage,
+                result: null
+            });
+        }
+    }
 
     public generateAiImage = async(req: Request, res: Response) : Promise<Response> => {
         const OPENAI_KEY : string = process.env.OPENAI_KEY || '';

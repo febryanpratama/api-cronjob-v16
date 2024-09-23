@@ -2,6 +2,10 @@ import OpenAI from "openai";
 import { ListGenerateText } from "../../../pages/GeneratePages/models/GenerateModel";
 import ResponseCode from "../../utils/ResponseCode";
 
+interface dataInterface {
+    role : string,
+    content : string
+}
 
 class GenerateRepository {
     public generateText = async(res:any, data : string) => {
@@ -19,6 +23,37 @@ class GenerateRepository {
                     }
                 ],
             })
+    
+    
+            return {
+                status: true,
+                message: "Success",
+                data: respData.choices[0].message.content
+            }
+        } catch (error:any) {
+            return {
+                status: true,
+                message: error.message
+            }
+        }
+
+
+    }
+
+    public generateTextAsisstant = async(res:any, data : any) => {
+        const OPENAI_KEY : string = process.env.OPENAI_KEY || '';
+        const openai = new OpenAI({apiKey : OPENAI_KEY});
+
+        try {
+
+            console.log("=====================")
+            console.log("Get Request Data",data)
+            const respData : any = await openai.chat.completions.create({
+                model: "gpt-4-turbo-preview",
+                messages: data
+            })
+
+            console.log("Response Data",respData)
     
     
             return {
