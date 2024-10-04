@@ -23,14 +23,16 @@ class App {
     protected plugins(): void {
         this.app.use(express.urlencoded());
         this.app.use(express.json());
-        this.app.use((express.static(path.join(__dirname, '../public'))))
-        // this.app.use( compression() );
-        this.app.use( helmet() );
+
+        // Serve static files from the "public/images" folder under the "/static" route
+        this.app.use('/static', express.static(path.join(__dirname, '../public/images')));
+
+        this.app.use(helmet());
         this.app.use(cors({
-            origin : '*',
-            methods : [ 'GET', 'POST', 'PUT', 'PATCH', 'DELETE' ],
-            allowedHeaders : [ 'Content-Type', 'Authorization', 'Accept' ],
-        }))
+            origin: '*',
+            methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
+            allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],
+        }));
     }
 
     protected routes(): void {
