@@ -89,6 +89,8 @@ class GenerateController {
                     jsonResponse: undefined
                 }
             });
+
+            console.log('Raw Response:', respStore);
     
     
             return ResponseCode.successGet(res, respStore);
@@ -121,11 +123,11 @@ class GenerateController {
     
             const respText: any = await GenerateRepository.generateTextAsisstant(res, prompt);
     
-            if (respText === false) {
+            if (respText.status === false) {
                 return ResponseCode.error(res, {
-                    code: 500,
+                    code: respText.errorCode,
                     status: false,
-                    message: 'Failed to generate text',
+                    message: respText.message,
                     result: null
                 });
             }

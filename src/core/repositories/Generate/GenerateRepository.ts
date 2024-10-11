@@ -32,8 +32,9 @@ class GenerateRepository {
             }
         } catch (error:any) {
             return {
-                status: true,
-                message: error.message
+                status: false,
+                errorCode: error.status,
+                message: error.error.message
             }
         }
 
@@ -49,7 +50,7 @@ class GenerateRepository {
             console.log("=====================")
             console.log("Get Request Data",data)
             const respData : any = await openai.chat.completions.create({
-                model: "gpt-4-turbo-preview",
+                model: "gpt-4o",
                 messages: data
             })
 
@@ -63,8 +64,9 @@ class GenerateRepository {
             }
         } catch (error:any) {
             return {
-                status: true,
-                message: error.message
+                status: false,
+                errorCode: error.status,
+                message: error.error.message
             }
         }
 
