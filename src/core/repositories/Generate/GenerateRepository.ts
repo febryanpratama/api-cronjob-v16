@@ -1,6 +1,7 @@
 import OpenAI from "openai";
 import { ListGenerateText } from "../../../pages/GeneratePages/models/GenerateModel";
 import ResponseCode from "../../utils/ResponseCode";
+import axios from "axios";
 
 interface dataInterface {
     role : string,
@@ -110,6 +111,93 @@ class GenerateRepository {
         }
     }
 
+    public getAccount = async () => {
+        const OPENAI_KEY: string = process.env.OPENAI_KEY || '';
+        const openai = new OpenAI({ apiKey: OPENAI_KEY });
+    
+        try {
+            const response = await axios.get('https://api.openai.com/v1/organization/audit_logs', {
+              headers: {
+                'Authorization': `Bearer ${OPENAI_KEY}`,
+                'Content-Type': 'application/json'
+              }
+            });
+        
+            console.log(response.data); // Handle the response
+            return {
+              status: true,
+              data: response.data
+            };
+          } catch (error : any) {
+            console.error("Error fetching audit logs:", error.response?.data || error.message);
+            return {
+              status: false,
+              errorCode: error.response?.status || 500,
+              message: error.response?.data?.error?.message || error.message
+            };
+          }
+    }
+
+    public generateWebsite = async(res:any, data: string) => {
+        const OPENAI_KEY: string = process.env.OPENAI_KEY || '';
+        const openai = new OpenAI({ apiKey: OPENAI_KEY });
+    
+        try {
+            // Mengirim request ke OpenAI
+            const respData: any = await openai.chat.completions.create({
+                model: "gpt-4-turbo-preview",
+                messages: [
+                    {
+                        "role": "user",
+                        "content": data
+                    }
+                ],
+            });
+    
+            // Mendapatkan konten dari response
+            let responseContent = respData.choices[0].message.content;
+    
+            // Menggunakan regex untuk menangkap kode di dalam backticks (```code```)
+            const codeBlock = responseContent.match(/```(?:\w+)?\n([\s\S]*?)```/);
+    
+            let extractedCode = '';
+            if (codeBlock) {
+                // Menangkap hanya kode dari hasil regex
+                extractedCode = codeBlock[1];
+    
+                // Membersihkan karakter tidak perlu seperti \n, \", dan lainnya
+                extractedCode = extractedCode
+                    .replace(/\\n/g, '')  // Hapus \n
+                    .replace(/\\"/g, '"') // Ganti \" menjadi "
+                    .replace(/\\t/g, '')  // Hapus \t (tab)
+                    .replace(/\\r/g, '')  // Hapus \r (carriage return)
+                    .replace(/^\s+|\s+$/g, '') // Trim spasi di awal dan akhir
+                    .replace(/\s{2,}/g, ' ')  // Mengganti spasi ganda dengan spasi tunggal
+                    .trim();
+            } else {
+                extractedCode = 'No code block found';
+            }
+
+            const response = {
+                suggest: responseContent,
+                code: extractedCode
+            }
+    
+            // Mengembalikan hasil dengan hanya kode yang sudah diformat
+            return {
+                status: true,
+                message: "Success",
+                data: response // Hanya mengembalikan kode yang sudah dibersihkan
+            };
+    
+        } catch (error: any) {
+            return {
+                status: false,
+                errorCode: error.status,
+                message: error.error.message
+            };
+        }
+    }
 
 }
 

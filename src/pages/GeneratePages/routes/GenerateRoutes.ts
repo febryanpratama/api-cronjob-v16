@@ -5,8 +5,10 @@ import GenerateController from "../controllers/GenerateController";
 
 class GenerateRoutes extends BaseRoutes {
     public routes() : void {
+        this.router.get('/account', GenerateController.getInfoAccount);
         this.router.get('/list', GenerateController.index);
         this.router.post('/text', GenerateController.generateAiText);
+        this.router.post('/website', GenerateController.generateAiWebsite);
         this.router.post('/text-assistant', GenerateController.generateAiTextAsisstant);
         this.router.post('/image', GenerateController.generateAiImage);
         this.router.get('/artikel/:id', GenerateController.generateArtikel);

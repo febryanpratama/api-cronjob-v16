@@ -334,6 +334,13 @@ class GenerateController {
         }
     }
 
+    public getInfoAccount = async(req: Request, res: Response) : Promise<Response> => {
+        const respAccount : any = await GenerateRepository.getAccount();
+
+        return respAccount
+
+    }
+
     // public generateAiTextRandom = async(req: Request, res: Response) : Promise<Response> => {
     //     const OPENAI_KEY : string = process.env.OPENAI_KEY || '';
     //     const openai = new OpenAI({apiKey : OPENAI_KEY});
@@ -344,6 +351,57 @@ class GenerateController {
 
     //         if(respText === false) return ResponseCode.error(res, respText.message);
     // }
+
+    public generateAiWebsite = async(req: Request, res: Response) : Promise<Response> => {
+        const OPENAI_KEY: string = process.env.OPENAI_KEY || '';
+        const openai = new OpenAI({ apiKey: OPENAI_KEY });
+    
+        try {
+            const { prompt }: InterfacePrompt = req.body;
+    
+            if (!prompt) {
+                return ResponseCode.error(res, {
+                    code: 400,
+                    status: false,
+                    message: 'Prompt is required',
+                    result: null
+                });
+            }
+    
+            const respText: any = await GenerateRepository.generateWebsite(res, prompt);
+    
+            if (respText === false) {
+                return ResponseCode.error(res, {
+                    code: 500,
+                    status: false,
+                    message: 'Failed to generate text',
+                    result: null
+                });
+            }
+
+            // const respStore = await prisma.responseAi.create({
+            //     data: {
+            //         prompt: prompt,
+            //         response: respText.data,
+            //         jsonResponse: undefined
+            //     }
+            // });
+
+            // console.log('Raw Response:', respStore);
+    
+    
+            return ResponseCode.successGet(res, respText.data);
+        } catch (e: unknown) {
+            const errorMessage = e instanceof Error ? e.message : 'Unknown error occurred';
+    
+            return ResponseCode.error(res, {
+                code: 500,
+                status: false,
+                message: errorMessage,
+                result: null
+            });
+        }
+    }
 }
 
 export default new GenerateController();
