@@ -223,6 +223,21 @@ class GenerateController {
                 result : null
             })
 
+            const checkApplicationStatus = await prisma.application.findFirst({
+                where: {
+                    id: application_id
+                }
+            })
+
+            if(checkApplicationStatus?.status === false) {
+                return ResponseCode.error(res, {
+                    code : 400,
+                    status : false,
+                    message : 'Application not active',
+                    result : null
+                })
+            }
+
             let prompt :string = "sebagai seorang profesional pembuat konten web, tolong buatkan suatu artikel dan sajikan dalam maksimal 500 kata dan dibagi menjadi tiga paragraf serta sajikan dalam bentuk code html code untuk tampil di halaman pertama mesin pencarian berdasarkan deskripsi berikut ini: " + getRandMeta.keyword;
 
 
@@ -341,17 +356,6 @@ class GenerateController {
 
     }
 
-    // public generateAiTextRandom = async(req: Request, res: Response) : Promise<Response> => {
-    //     const OPENAI_KEY : string = process.env.OPENAI_KEY || '';
-    //     const openai = new OpenAI({apiKey : OPENAI_KEY});
-
-    //     const {prompt} : InterfacePrompt = req.body;
-
-    //     const respText : any = await GenerateRepository.generateText(res, prompt);
-
-    //         if(respText === false) return ResponseCode.error(res, respText.message);
-    // }
-
     public generateAiWebsite = async(req: Request, res: Response) : Promise<Response> => {
         const OPENAI_KEY: string = process.env.OPENAI_KEY || '';
         const openai = new OpenAI({ apiKey: OPENAI_KEY });
@@ -391,6 +395,49 @@ class GenerateController {
     
     
             return ResponseCode.successGet(res, respText.data);
+        } catch (e: unknown) {
+            const errorMessage = e instanceof Error ? e.message : 'Unknown error occurred';
+    
+            return ResponseCode.error(res, {
+                code: 500,
+                status: false,
+                message: errorMessage,
+                result: null
+            });
+        }
+    }
+
+    public generateAiDallE = async(req: Request, res: Response) : Promise<Response> => {
+        const OPENAI_KEY: string = process.env.OPENAI_KEY || '';
+        const openai = new OpenAI({ apiKey: OPENAI_KEY });
+    
+        try {
+            const { prompt }: InterfacePrompt = req.body;
+    
+            if (!prompt) {
+                return ResponseCode.error(res, {
+                    code: 400,
+                    status: false,
+                    message: 'Prompt is required',
+                    result: null
+                });
+            }
+    
+            const respDallE: any = await GenerateRepository.generateDallE(res, prompt);
+    
+            if (respDallE === false) {
+                return ResponseCode.error(res, {
+                    code: 500,
+                    status: false,
+                    message: 'Failed to generate text',
+                    result: null
+                });
+            }
+
+            console.log('Raw Response:', respDallE);
+    
+    
+            return ResponseCode.successGet(res, respDallE);
         } catch (e: unknown) {
             const errorMessage = e instanceof Error ? e.message : 'Unknown error occurred';
     

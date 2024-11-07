@@ -8,7 +8,7 @@ generator client {
 
 datasource db {
   provider = "mysql"
-  url      = "mysql://root:@localhost:3306/incore_cronjob"
+  url      = "mysql://admin:Database167669123@@68.183.186.169:3306/incore_cronjob"
 }
 
 enum Type {
@@ -27,6 +27,7 @@ model Application {
   name      String
   metaAis   MetaAi[]
   artikels  Artikel[]
+  status   Boolean @default(false)
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now())
 }

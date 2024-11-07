@@ -183,6 +183,7 @@ class GenerateRepository {
                 code: extractedCode
             }
     
+            console.log("Response", response);
             // Mengembalikan hasil dengan hanya kode yang sudah diformat
             return {
                 status: true,
@@ -191,11 +192,41 @@ class GenerateRepository {
             };
     
         } catch (error: any) {
+            console.log("Error generate website", error);
             return {
                 status: false,
                 errorCode: error.status,
                 message: error.error.message
             };
+        }
+    }
+
+    public generateDallE = async(res:any, data: string) => {
+        const OPENAI_KEY : string = process.env.OPENAI_KEY || '';
+        const openai = new OpenAI({apiKey : OPENAI_KEY});
+
+        try {
+            const respData : any = await openai.images.generate({
+                model: "dall-e-3",
+                prompt: data,
+                n: 1,
+                size: '1024x1024',
+                quality: "hd",
+            })
+
+            return {
+                status: true,
+                data: respData.data[0].url
+            }
+
+
+        }catch(e:any){
+            return ResponseCode.error(res, {
+                code : 500,
+                status : false,
+                message : e.message,
+                result : null
+            })
         }
     }
 
