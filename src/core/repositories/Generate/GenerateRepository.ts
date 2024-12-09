@@ -235,8 +235,8 @@ class GenerateRepository {
         try {
             
             const listData: any = [];
-            const apiKey = "AIzaSyBGKMy7bVgeItXY6ooxq2hiGJkukyEjnII"
-            const engineId = "b1f7cdd93fc4d40e8"
+            const apiKey = process.env.APIKEY_GOOGLE || ''
+            const engineId = process.env.APIKEY_ENGINE || ''
             const resp = await axios.get(`https://www.googleapis.com/customsearch/v1?key=${apiKey}&cx=${engineId}&q=${data}&searchType=image`)
    
             // add to new array
