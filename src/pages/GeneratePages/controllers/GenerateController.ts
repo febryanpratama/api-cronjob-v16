@@ -449,6 +449,14 @@ class GenerateController {
             });
         }
     }
+
+    public generateImagesGoogle = async(req: Request, res: Response) : Promise<Response> => {
+
+        const { prompt }: InterfacePrompt = req.body;
+        const resp = await GenerateRepository.generateImageGoogle(res, prompt);
+
+        return ResponseCode.successGet(res, resp);
+    }
 }
 
 export default new GenerateController();

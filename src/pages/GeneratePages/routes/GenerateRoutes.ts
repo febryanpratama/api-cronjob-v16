@@ -14,6 +14,7 @@ class GenerateRoutes extends BaseRoutes {
         this.router.get('/artikel/:id', GenerateController.generateArtikel);
         this.router.post('/artikel', GenerateController.storeArtikel);
         this.router.post('/dall-e', GenerateController.generateAiDallE);
+        this.router.post('/generate-images-google', GenerateController.generateImagesGoogle);
 
         // this.router.post('/text-random', GenerateController.generateAiTextRandom);
     }

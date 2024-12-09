@@ -16,7 +16,7 @@ class GenerateRepository {
         try {
 
             const respData : any = await openai.chat.completions.create({
-                model: "gpt-4-turbo-preview",
+                model: "gpt-4o",
                 messages: [
                     {
                         "role": "user",
@@ -227,6 +227,31 @@ class GenerateRepository {
                 message : e.message,
                 result : null
             })
+        }
+    }
+
+    public generateImageGoogle = async(res:any, data: string) => {
+
+        try {
+            
+            const listData: any = [];
+            const apiKey = "AIzaSyBGKMy7bVgeItXY6ooxq2hiGJkukyEjnII"
+            const engineId = "b1f7cdd93fc4d40e8"
+            const resp = await axios.get(`https://www.googleapis.com/customsearch/v1?key=${apiKey}&cx=${engineId}&q=${data}&searchType=image`)
+   
+            // add to new array
+
+            resp.data.items.map((item:any) => {
+                listData.push({
+                    title: item.title,
+                    link: item.link
+                })
+            })
+
+    
+            return listData;
+        } catch (error:any) {
+            throw new Error(error);
         }
     }
 
