@@ -21,7 +21,7 @@ class App {
     }
 
     protected plugins(): void {
-        this.app.use(express.urlencoded());
+        this.app.use(express.urlencoded({ extended: true }));
         this.app.use(express.json());
 
         // Serve static files from the "public/images" folder under the "/static" route

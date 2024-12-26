@@ -4,7 +4,6 @@ import ResponseCode from "../../utils/ResponseCode";
 import axios from "axios";
 import fs from "fs";
 import path from "path";
-import multer from "multer";
 
 interface dataInterface {
     role : string,
