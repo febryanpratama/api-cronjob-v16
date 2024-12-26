@@ -457,6 +457,29 @@ class GenerateController {
 
         return ResponseCode.successGet(res, resp);
     }
+
+    public uploadFile = async(req: Request, res: Response) : Promise<Response> => {
+        const body = req.body;
+
+        const resp = await GenerateRepository.uploadFile(res, body);
+
+        return ResponseCode.successGet(res, resp);
+    }
+
+    public fileTuning = async(req: Request, res: Response) : Promise<Response> => {
+        const { prompt }: InterfacePrompt = req.body;
+        const resp = await GenerateRepository.fileTuning(res, prompt);
+
+        return ResponseCode.successGet(res, resp);
+    }
+
+    public generateImages = async(req: Request, res: Response) : Promise<Response> => {
+        const { prompt }: InterfacePrompt = req.body;
+
+        const resp = await GenerateRepository.generateImageDeepAi(res, prompt);
+
+        return ResponseCode.successGet(res, resp);
+    }
 }
 
 export default new GenerateController();
