@@ -4,6 +4,7 @@ import ResponseCode from "../../utils/ResponseCode";
 import axios from "axios";
 import fs from "fs";
 import path from "path";
+import { ChatCompletionMessageParam } from "openai/resources/chat";
 
 interface dataInterface {
     role : string,
@@ -43,6 +44,40 @@ class GenerateRepository {
 
 
     }
+    public generateTextDeepseek = async (
+        res: any,
+        prompt: ChatCompletionMessageParam[]
+      ): Promise<any> => {
+        const apiKey = process.env.OPENAI_KEY || '';
+      
+        const openai = new OpenAI({
+          baseURL: 'https://api.deepseek.com',
+          apiKey: "sk-6579f9abecef4f5a9ce461df472a567b"
+        });
+      
+        try {
+          const response = await openai.chat.completions.create({
+            model: "deepseek-chat",
+            messages: prompt, // ✅ ini sekarang dikenali dengan type yang sesuai
+          });
+      
+          return {
+            status: true,
+            message: "Success",
+            data: response.choices[0].message.content
+          };
+      
+        } catch (error: any) {
+          console.error(error);
+          return {
+            status: false,
+            errorCode: error.status,
+            message: error.error?.message || error.message
+          };
+        }
+      }
+    
+    
 
     public generateTextAsisstant = async(res:any, data : any) => {
         const OPENAI_KEY : string = process.env.OPENAI_KEY || '';
@@ -239,7 +274,7 @@ class GenerateRepository {
             const listData: any = [];
             const apiKey = process.env.APIKEY_GOOGLE || ''
             const engineId = process.env.APIKEY_ENGINE || ''
-            const resp = await axios.get(`https://www.googleapis.com/customsearch/v1?key=${apiKey}&cx=${engineId}&q=${data}&searchType=image`)
+            const resp = await axios.get(`https://www.googleapis.com/customsearch/v1?key=${apiKey}&cx=${engineId}&q=${data}&searchType=image&fileType=png&imgType=photo`)
    
             // add to new array
 

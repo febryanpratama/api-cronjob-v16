@@ -15,11 +15,14 @@ class GenerateRoutes extends BaseRoutes {
         this.router.post('/artikel', GenerateController.storeArtikel);
         this.router.post('/dall-e', GenerateController.generateAiDallE);
         this.router.post('/generate-images-google', GenerateController.generateImagesGoogle);
+        this.router.post('/text-deepseek', GenerateController.generateAiTextDeepseek);
 
         this.router.post('/upload-file', GenerateController.uploadFile);
         this.router.post('/file-tuning', GenerateController.fileTuning);
 
         this.router.post('/generate-images-deepai', GenerateController.generateImages);
+
+
         // this.router.post('/text-random', GenerateController.generateAiTextRandom);
     }
 }

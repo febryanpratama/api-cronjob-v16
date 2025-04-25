@@ -105,6 +105,59 @@ class GenerateController {
             });
         }
     }
+    public generateAiTextDeepseek = async(req: Request, res: Response) : Promise<Response> => {
+        // const OPENAI_KEY: string = process.env.OPENAI_KEY || '';
+        const openai = new OpenAI({
+            baseURL: 'https://api.deepseek.com',
+            apiKey: 'sk-6579f9abecef4f5a9ce461df472a567b'
+    });
+    
+        try {
+            const { prompt }: InterfacePrompt = req.body;
+    
+            if (!prompt) {
+                return ResponseCode.error(res, {
+                    code: 400,
+                    status: false,
+                    message: 'Prompt is required',
+                    result: null
+                });
+            }
+    
+            const respText: any = await GenerateRepository.generateTextDeepseek(res, req.body.prompt); // ✅ OK
+
+    
+            if (respText.status === false) {
+                return ResponseCode.error(res, {
+                    code: respText.errorCode,
+                    status: false,
+                    message: respText.message,
+                    result: null
+                });
+            }
+
+            const respResult = {
+                status: true,
+                message: "Success",
+                response: respText.data
+            }
+            
+    
+    
+            return ResponseCode.successGet(res, respResult);
+        } catch (e: unknown) {
+            const errorMessage = e instanceof Error ? e.message : 'Unknown error occurred';
+    
+            return ResponseCode.error(res, {
+                code: 500,
+                status: false,
+                message: errorMessage,
+                result: null
+            });
+        }
+    }
+
+
     public generateAiTextAsisstant = async(req: Request, res: Response) : Promise<Response> => {
         const OPENAI_KEY: string = process.env.OPENAI_KEY || '';
         const openai = new OpenAI({ apiKey: OPENAI_KEY });
@@ -264,7 +317,7 @@ class GenerateController {
             
             let promptImage = "Sebagai seorang graphic designer profesional, buatkan gambar tanpa huruf, tanpa angka, tanpa tanda baca, dengan size maksimal 100kb dengan deskripsi aktivitas "+ketImage[Math.floor(Math.random() * ketImage.length)].title;
 
-            const responseImage : any = await GenerateRepository.generateImage(res, promptImage);
+            const responseImage : any = await GenerateRepository.generateImageDeepAi(res, promptImage);
 
             const respConvert :any = await ImageConvert.downloadImage(res, responseImage.data);
 
