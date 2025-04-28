@@ -8,6 +8,7 @@ class GenerateRoutes extends BaseRoutes {
         this.router.get('/account', GenerateController.getInfoAccount);
         this.router.get('/list', GenerateController.index);
         this.router.post('/text', GenerateController.generateAiText);
+        this.router.post('/deepseek', GenerateController.generateAiDeepseek);
         this.router.post('/website', GenerateController.generateAiWebsite);
         this.router.post('/text-assistant', GenerateController.generateAiTextAsisstant);
         this.router.post('/image', GenerateController.generateAiImage);

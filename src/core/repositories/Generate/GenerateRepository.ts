@@ -44,6 +44,41 @@ class GenerateRepository {
 
 
     }
+    public generateDeepseek = async(res:any, data : string) => {
+        const OPENAI_KEY : string = process.env.OPENAI_KEY || '';
+        const openai = new OpenAI({
+            baseURL: 'https://api.deepseek.com',
+            apiKey: "sk-6579f9abecef4f5a9ce461df472a567b"
+        });
+
+        try {
+
+            const respData : any = await openai.chat.completions.create({
+                model: "deepseek-chat",
+                messages: [
+                    {
+                        "role": "user",
+                        "content": data
+                    }
+                ],
+            })
+    
+    
+            return {
+                status: true,
+                message: "Success",
+                data: respData.choices[0].message.content
+            }
+        } catch (error:any) {
+            return {
+                status: false,
+                errorCode: error.status,
+                message: error.error.message
+            }
+        }
+
+
+    }
     public generateTextDeepseek = async (
         res: any,
         prompt: ChatCompletionMessageParam[]
