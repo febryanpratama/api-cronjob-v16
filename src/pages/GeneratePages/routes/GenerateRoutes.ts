@@ -23,6 +23,10 @@ class GenerateRoutes extends BaseRoutes {
 
         this.router.post('/generate-images-deepai', GenerateController.generateImages);
 
+        // this.router.get('/status', GenerateController.checkStatus);
+
+        this.router.get('/check-mail', GenerateController.checkMail);
+
 
         // this.router.post('/text-random', GenerateController.generateAiTextRandom);
     }

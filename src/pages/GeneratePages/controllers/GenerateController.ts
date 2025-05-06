@@ -6,6 +6,17 @@ import { ListGenerateText } from "../models/GenerateModel";
 import GenerateRepository from "../../../core/repositories/Generate/GenerateRepository";
 import ImageConvert from "../../../core/repositories/Convert/ImageConvert";
 import { PrismaClient } from '@prisma/client';
+import dns from 'dns';
+import net from 'net';
+
+interface CheckMailBody {
+  email: string;
+  fake?: string;
+  nameserver?: string;
+  nsport?: number;
+  extended?: boolean;
+  timeout?: number;
+}
 const prisma = new PrismaClient();
 
 
@@ -23,6 +34,129 @@ class GenerateController {
 
         return ResponseCode.successGet(res, resp);
     }
+
+    // public checkMail = async (req: Request, res: Response): Promise<Response> => {
+    //     const {
+    //       email,
+    //       fake = 'a@b.c',
+    //       nameserver,
+    //       nsport = 25,
+    //       extended = false,
+    //       timeout = 3000,
+    //     }: CheckMailBody = req.body;
+    
+    //     if (!email) {
+    //     //   return ResponseCode.badRequest(res, 'Email is required');
+    //       return ResponseCode.error(res, {
+    //         code: 400,
+    //         status: false,
+    //         message: 'Email Required',
+    //         result: null
+    //       })
+    //     }
+    
+    //     const domain = email.split('@')[1];
+    //     const fakeDomain = fake.split('@')[1];
+    //     let smtpServer = nameserver;
+    
+    //     // Get MX record if nameserver not provided
+    //     if (!smtpServer) {
+    //       try {
+    //         const mx = await resolveMx(domain);
+    //         smtpServer = mx[0].exchange;
+    //       } catch (err: any) {
+    //         // return ResponseCode.internalError(res, 'Failed to resolve MX record', err.message);
+    //         return ResponseCode.error(res, {
+    //             code: 400,
+    //             status: false,
+    //             message: 'Failed MX Resolve'+err.message,
+    //             result: null
+    //           })
+    //       }
+    //     }
+    
+    //     return new Promise((resolve) => {
+    //       const commands = [
+    //         (extended ? `EHLO ${fakeDomain}` : `HELO ${fakeDomain}`),
+    //         `MAIL FROM:<${fake}>`,
+    //         `RCPT TO:<${email}>`,
+    //         `QUIT`,
+    //       ];
+    
+    //       const socket = net.createConnection({ host: smtpServer, port: nsport }, () => {
+    //         let response = '';
+    //         let i = 0;
+    
+    //         socket.setTimeout(timeout);
+    
+    //         socket.on('data', (data) => {
+    //           response += data.toString();
+    
+    //           if (i < commands.length) {
+    //             socket.write(commands[i++] + '\r\n');
+    //           } else {
+    //             socket.end();
+    //           }
+    //         });
+    
+    //         socket.on('end', () => {
+    //           const result = interpretSMTPResponse(response);
+    //         //   resolve(ResponseCode.success(res, 'SMTP check completed', { result, raw: response }));
+    //           resolve(ResponseCode.successGet(res, {
+    //             result,
+    //             raw:response
+    //           }))
+    //         });
+    
+    //         socket.on('timeout', () => {
+    //           socket.destroy();
+    //           resolve(ResponseCode.error(res, {
+    //             code: 400,
+    //             status: false,
+    //             message: 'SMTP Connecntion TImeout',
+    //             result: null
+    //           }));
+    //         });
+    
+    //         socket.on('error', (err) => {
+    //           resolve(ResponseCode.error(res, {
+    //             code: 400,
+    //             status: false,
+    //             message: "SMTP connection error",
+    //             result: null
+    //           }));
+    //         });
+    //       });
+    //     });
+    // };
+    
+
+    // public checkStatus = async(req: Request, res: Response) : Promise<Response>=>{
+
+    // }
+    public checkMail = async (req: Request, res: Response): Promise<Response> => {
+        const email = req.query.email as string;
+    
+        const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+        if (!email || !emailPattern.test(email)) {
+            return res.status(400).json({ message: "Invalid email format." });
+        }
+    
+        const domain = email.split("@")[1];
+    
+        return new Promise((resolve) => {
+          dns.resolveMx(domain, (err, addresses) => {
+            if (err || !addresses || addresses.length === 0) {
+              return resolve(res.status(404).json({ message: "MX record not found. Possibly invalid domain." }));
+            }
+    
+            return resolve(res.status(200).json({
+              message: "Domain is valid.",
+              mxRecords: addresses
+            }));
+          });
+        });
+    };
 
     public generateAiText = async(req: Request, res: Response) : Promise<Response> => {
         const OPENAI_KEY: string = process.env.OPENAI_KEY || '';
@@ -132,45 +266,6 @@ class GenerateController {
                     result: null
                 });
             }
-    
-            // Log the raw response for debugging
-            // console.log('Raw Response:', respText.data);
-    
-            // let jsonResponse;
-            // try {
-            //     // Remove code block markers and unnecessary characters
-            //     const cleanedData = respText.data.replace(/```json\n|```/g, '').trim();
-
-
-                
-            //     // Attempt to parse the cleaned response text as JSON
-            //     jsonResponse = JSON.parse(cleanedData);
-
-            //     // Optionally store the response in your database
-            //     const respStore = await prisma.responseAi.create({
-            //         data: {
-            //             prompt: prompt,
-            //             response: respText.data,
-            //         }
-            //     });
-            // } catch (parseError: unknown) {
-            //     const errorMessage = parseError instanceof Error ? parseError.message : 'Unknown error occurred';
-    
-            //     return ResponseCode.error(res, {
-            //         code: 500,
-            //         status: false,
-            //         message: 'Error parsing JSON response: ' + errorMessage,
-            //         result: null
-            //     });
-            // }
-
-            // const respStore = await prisma.responseAi.create({
-            //     data: {
-            //         prompt: prompt,
-            //         response: respText.data,
-            //         jsonResponse: undefined
-            //     }
-            // });
 
             console.log('Raw Response:', respText);
 
@@ -623,6 +718,24 @@ class GenerateController {
 
         return ResponseCode.successGet(res, resp);
     }
+}
+
+function resolveMx(domain: string): Promise<dns.MxRecord[]> {
+    return new Promise((resolve, reject) => {
+      dns.resolveMx(domain, (err, addresses) => {
+        if (err || !addresses || addresses.length === 0) return reject(err);
+        addresses.sort((a, b) => a.priority - b.priority);
+        resolve(addresses);
+      });
+    });
+  }
+  
+function interpretSMTPResponse(response: string): string {
+    if (response.includes('550')) return "Doesn't exist";
+    if (response.includes('252')) return "May not exist";
+    if (response.includes('422') || response.includes('431') || response.includes('450')) return "Exists but may not receive";
+    if (response.includes('250')) return "Exists";
+    return "Unknown";
 }
 
 export default new GenerateController();
